@@ -19,7 +19,6 @@ describe("addOneUser", () => {
             expect(value).to.haveOwnProperty('_id')
             id_user_valid = value._id
             users.push(value)
-            //console.log(value)
         })
     })
     it("Utilisateur incorrect. (Sans firstName) - E", () => {
@@ -132,18 +131,18 @@ describe("findOneUser", () => {
 
 describe("findManyUsers", () => {
     it("Retourne 3 utilisateurs - S", (done) => {
-        UserService.findManyUsers(1, 3, function (err, value) {
+        UserService.findManyUsers(null, 3, 1, function (err, value) {
+            console.log(value)
             expect(value).to.haveOwnProperty("count")
             expect(value).to.haveOwnProperty("results")
             expect(value["count"]).to.be.equal(4)
             expect(value["results"]).lengthOf(3)
             expect(err).to.be.null
-            //console.log(value)
             done()
         })
     })
     it("Envoie d'une chaine de caractère a la place de la page - E", (done) => {
-        UserService.findManyUsers("coucou", 3, function (err, value) {
+        UserService.findManyUsers(null, "coucou", 3, function (err, value) {
             expect(err).to.haveOwnProperty("type_error")
             expect(err["type_error"]).to.be.equal("no-valid")
             expect(value).to.undefined
@@ -300,5 +299,4 @@ describe("deleteManyUsers", () => {
             done()
         })
     })
-
 })

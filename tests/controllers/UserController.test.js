@@ -64,7 +64,6 @@ describe("POST - /users", () => {
             username: "dwathttvrfSlayer",
             email: "lutfgfbu.us@gmail.com"
         },
-
         {
             firstName: "luf",
             lastName: "Us",
@@ -202,6 +201,16 @@ describe("GET - /users_by_filters", () => {
             done()
         })
     })
+    it("Chercher plusieurs utilisateurs avec une query contenant une chaine de caractère - S", (done) => {
+        chai.request(server).get('/users_by_filters').query({page: 1, pageSize: 2, q: 'lu'})
+        .end((err, res) => {
+            console.log(res.body)
+            res.should.have.status(200)
+            expect(res.body.results).to.be.an('array')
+            expect(res.body.count).to.be.equal(3)
+            done()
+        })
+    })
     it("Chercher plusieurs utilisateurs avec une chaine de caractères dans page - E", (done) => {
         chai.request(server).get('/users_by_filters').query({page: 'une phrase', pageSize: 2})
         .end((err, res) => {
@@ -291,7 +300,7 @@ describe("PUT - /users", () => {
     it("Modifier des utilisateurs avec un champ unique existant. - E", (done) => {
         chai.request(server).put('/users').query({id: _.map(users, '_id')}).send({ username: users[1].username})
         .end((err, res) => {
-            //console.log(err)
+            //
             res.should.have.status(405)
             done()
         })
@@ -302,6 +311,7 @@ describe("DELETE - /user", () => {
     it("Supprimer un utilisateur. - S", (done) => {
         chai.request(server).delete('/user/' + users[0]._id)
         .end((err, res) => {
+            // console.log(users)
             res.should.have.status(200)
             done()
         })

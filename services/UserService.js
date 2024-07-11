@@ -112,7 +112,7 @@ module.exports.findOneUserById = function (user_id, callback) {
                 }
             }
             catch (e) {
-                console.log(e)
+                
             }
         }).catch((err) => {
             callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
@@ -135,7 +135,7 @@ module.exports.findManyUsersById = function (users_id, callback) {
                 }
             }
             catch (e) {
-                console.log(e)
+                
             }
         }).catch((err) => {
             callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
@@ -154,21 +154,20 @@ module.exports.findManyUsersById = function (users_id, callback) {
 
 module.exports.findOneUser = function (tab_field, value, callback) {
     var field_unique = ['username', 'email']
+    console.log(value)
     if (tab_field && Array.isArray(tab_field) && value && _.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1}).length == 0) {
         var obj_find = []
         _.forEach(tab_field, (e) => {
             obj_find.push({[e]: value})
         })
         User.findOne({ $or: obj_find}).then((value) => {
-            // console.log(obj_find)
-            // console.log(value)
             if (value)
                 callback(null, value.toObject())
             else {
                 callback({msg: "Utilisateur non trouvé.", type_error: "no-found"})
             }
         }).catch((err) => {
-        callback({msg: "Error interne mongo", type_error:'error-mongo'})
+            callback({msg: "Error interne mongo", type_error:'error-mongo'})
         })
     }
     else {
@@ -191,18 +190,18 @@ module.exports.findOneUser = function (tab_field, value, callback) {
     }
 }
 
-module.exports.findManyUsers = function(page, limit, callback) {
-    //console.log(page, !page)
+module.exports.findManyUsers = function(search, limit, page, callback) {
 
     page = !page ? 1 : parseInt(page)
     limit = !limit ? 10 : parseInt(limit)
     if (typeof page !== "number" || typeof limit !== "number" || isNaN(page) || isNaN(limit)) {
         callback ({msg: `format de ${typeof page !== "number" ? "page" : "limit"} est incorrect`, type_error: "no-valid"})
     }else{
-        User.countDocuments().then((value) => {
+        let query_mongo = search ? {$or: _.map(["firstName", "lastName", "username", "phone", "email"], (e) => {return {[e]: {$regex: search}}})} : {}
+        User.countDocuments(query_mongo).then((value) => {
             if (value > 0) {
                 const skip = ((page - 1) * limit)
-                User.find({}, null, {skip:skip, limit:limit}).then((results) => {
+                User.find(query_mongo, null, {skip:skip, limit:limit}).then((results) => {
                     callback(null, {
                         count: value,
                         results: results
@@ -228,7 +227,7 @@ module.exports.updateOneUser = function (user_id, update, callback) {
                     callback({ msg: "Utilisateur non trouvé.", type_error: "no-found" });
 
             } catch (e) {
-                console.log(e)
+                
                 callback(e)
             }
         }).catch((errors) => {
@@ -266,19 +265,19 @@ module.exports.updateOneUser = function (user_id, update, callback) {
 
 
 module.exports.updateManyUsers = function (users_id, update, callback) {
-    // console.log(users_id)
+    // 
     if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
         users_id = users_id.map((e) => { return new ObjectId(e) })
         User.updateMany({ _id: users_id }, update, { runValidators: true }).then((value) => {
             try {
-                // console.log(value)
+                // 
                 if(value && value.matchedCount != 0){
                     callback(null, value)
                 }else {
                     callback({msg: 'Utilisateurs non trouvé', type_error: 'no-found'})
                 }
             } catch (e) {
-                console.log(e)
+                
                 callback(e)
             }
         }).catch((errors) => {
@@ -325,7 +324,7 @@ module.exports.deleteOneUser = function (user_id, callback) {
                     callback({ msg: "Utilisateur non trouvé.", type_error: "no-found" });
             }
             catch (e) {
-                console.log(e)
+                
                 callback(e)
             }
         }).catch((e) => {

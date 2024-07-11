@@ -123,7 +123,8 @@ module.exports.findManyUsers = function(req, res) {
     req.log.info("Recherche de plusieurs utilisateurs")
     let page = req.query.page
     let pageSize = req.query.pageSize
-    UserService.findManyUsers(page, pageSize, function(err, value) {        
+    let searchValue = req.query.q
+    UserService.findManyUsers(searchValue, pageSize, page,  function(err, value) {        
         if (err && err.type_error == "no-valid") {
             res.statusCode = 405
             res.send(err)
@@ -195,7 +196,7 @@ module.exports.updateOneUser = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Modification d'un utilisateur")
     UserService.updateOneUser(req.params.id, req.body, function(err, value) {
-        //console.log(err)
+        //
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
