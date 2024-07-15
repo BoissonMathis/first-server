@@ -9,6 +9,7 @@ var Article = mongoose.model('Article', ArticleSchema)
 Article.createIndexes()
 
 module.exports.addOneArticle = async function (article, callback) {
+    
     try {
         var new_article = new Article(article);
         var errors = new_article.validateSync();
@@ -90,7 +91,6 @@ module.exports.addManyArticles = async function (articles, callback) {
 };
 
 module.exports.findOneArticleById = function (article_id, options, callback) {
-
     let opts = {populate: options && options.populate ? ["user_id"] : []}
 
     if (article_id && mongoose.isValidObjectId(article_id)) {
@@ -114,8 +114,8 @@ module.exports.findOneArticleById = function (article_id, options, callback) {
 }
 
 module.exports.findManyArticlesById = function (articles_id, options, callback) {
-    
     let opts = {populate: options && options.populate ? ['user_id'] : []}
+
     if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
         articles_id = articles_id.map((e) => { return new ObjectId(e) })
         Article.find({ _id: articles_id }, null, opts).then((value) => {
@@ -212,6 +212,7 @@ module.exports.findManyArticles = function(search, limit, page, options, callbac
 
 module.exports.updateOneArticle = function (article_id, update, callback) {
     update.updated_at = new Date()
+
     if (article_id && mongoose.isValidObjectId(article_id)) {
         Article.findByIdAndUpdate(new ObjectId(article_id), update, { returnDocument: 'after', runValidators: true }).then((value) => {
             try {
@@ -258,7 +259,7 @@ module.exports.updateOneArticle = function (article_id, update, callback) {
 
 
 module.exports.updateManyArticles = function (articles_id, update, callback) {
-    // 
+
     if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
         articles_id = articles_id.map((e) => { return new ObjectId(e) })
         Article.updateMany({ _id: articles_id }, update, { runValidators: true }).then((value) => {
@@ -308,6 +309,7 @@ module.exports.updateManyArticles = function (articles_id, update, callback) {
 }
 
 module.exports.deleteOneArticle = function (article_id, callback) {
+
     if (article_id && mongoose.isValidObjectId(article_id)) {
         Article.findByIdAndDelete(article_id).then((value) => {
             try {
@@ -330,6 +332,7 @@ module.exports.deleteOneArticle = function (article_id, callback) {
 }
 
 module.exports.deleteManyArticles = function (articles_id, callback) {
+
     if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
         articles_id = articles_id.map((e) => { return new ObjectId(e) })
         Article.deleteMany({ _id: articles_id }).then((value) => {
