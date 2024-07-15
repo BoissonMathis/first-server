@@ -19,6 +19,7 @@ describe("addOneUser", () => {
             expect(value).to.haveOwnProperty('_id');
             id_user_valid = value._id
             users.push(value)
+            done()
         })
     })
     it("Utilisateur incorrect. (Sans firstName) - E", () => {
@@ -33,6 +34,7 @@ describe("addOneUser", () => {
             expect(err).to.haveOwnProperty('fields')
             expect(err['fields']).to.haveOwnProperty('firstName')
             expect(err['fields']['firstName']).to.equal('Path `firstName` is required.')
+            done()
         })
     })
 })

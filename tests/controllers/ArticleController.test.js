@@ -100,6 +100,58 @@ describe("POST - /article", () => {
     })
 })
 
+describe("POST - /articles", () => {
+    it("Ajouter des articles. - S", (done) => {
+        chai.request(server).post('/articles').send([
+            {
+                user_id: rdm_user(tab_id_users),
+                name: "voiture",
+                description: "ceci est une description",
+                price: 12000,
+                quantity: 40
+            },
+            {
+                user_id: rdm_user(tab_id_users),
+                name: "velo",
+                description: "ceci est une description",
+                price: 50,
+                quantity: 75
+            },
+            {
+                user_id: rdm_user(tab_id_users),
+                name: "avion",
+                description: "ceci est une description",
+                price: 1500000,
+                quantity: 5
+            },
+        ]).end((err, res) => {
+            expect(res).to.have.status(201)
+            articles.push(res.body)
+            done()
+        });
+    })
+    it("Ajouter des articles incorrecte. - E", (done) => {
+        chai.request(server).post('/articles').send([
+            {
+                user_id: rdm_user(tab_id_users),
+                description: "ceci est une description",
+                price: 12000,
+                quantity: 40
+            },
+            {
+                user_id: rdm_user(tab_id_users),
+                name: "velo",
+                description: "ceci est une description",
+                price: -50,
+                quantity: 75
+            }
+        ]).end((err, res) => {
+            expect(res).to.have.status(405)   
+            done()
+        });
+    })
+})
+
 describe("GET - /article/:id", () => {
     it("Chercher un article correct. - S", (done) => {
         chai.request(server).get('/article/' + articles[0]._id)

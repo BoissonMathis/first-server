@@ -9,7 +9,7 @@ var Article = mongoose.model('Article', ArticleSchema)
 Article.createIndexes()
 
 module.exports.addOneArticle = async function (article, callback) {
-    
+
     try {
         var new_article = new Article(article);
         var errors = new_article.validateSync();
@@ -39,7 +39,6 @@ module.exports.addOneArticle = async function (article, callback) {
 
 module.exports.addManyArticles = async function (articles, callback) {
     var errors = [];
-
     // Vérifier les erreurs de validation
     for (var i = 0; i < articles.length; i++) {
         var article = articles[i];

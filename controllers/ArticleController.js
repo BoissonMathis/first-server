@@ -28,6 +28,7 @@ module.exports.addOneArticle = function(req, res) {
 
 // La fonction permet d'ajouter plusieurs articles
 module.exports.addManyArticles = function(req, res) {
+    LoggerHttp(req, res)
     req.log.info("Création de plusieurs articles")
     ArticleService.addManyArticles(req.body, function(err, value) {
         if (err) {

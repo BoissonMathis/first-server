@@ -43,7 +43,7 @@ it("Création des utilisateurs fictif", (done) => {
 })
 
 function rdm_user (tab) {
-    let rdm_id = tab[Math.floor(Math.random() * tab.length)]
+    let rdm_id = tab[Math.floor(Math.random() * (tab.length - 1))]
     return rdm_id
 }
 
@@ -62,6 +62,7 @@ describe("addOneArticle", () => {
             expect(value).to.haveOwnProperty('user_id')
             id_article_valid = value._id
             articles.push(value)
+            done()
         })
     })
     it("Article incorrect. (Sans name) - E", () => {
@@ -77,6 +78,7 @@ describe("addOneArticle", () => {
             expect(err).to.haveOwnProperty('fields')
             expect(err['fields']).to.haveOwnProperty('name')
             expect(err['fields']['name']).to.equal('Path `name` is required.')
+            done()
         })
     })
     it("Article incorrect. (Description vide) - E", () => {
@@ -93,6 +95,7 @@ describe("addOneArticle", () => {
             expect(err).to.haveOwnProperty('fields')
             expect(err['fields']).to.haveOwnProperty('description')
             expect(err['fields']['description']).to.equal('Path `description` is required.')
+            done()
         })
     })
     it("Article incorrect. (Price < 0) - E", () => {
@@ -109,6 +112,7 @@ describe("addOneArticle", () => {
             expect(err).to.haveOwnProperty('fields')
             expect(err['fields']).to.haveOwnProperty('price')
             expect(err['fields']['price']).to.equal('Path `price` (-20) is less than minimum allowed value (1).')
+            done()
         })
     })
     it("Article incorrect. (String dans price) - E", () => {
@@ -124,6 +128,7 @@ describe("addOneArticle", () => {
             expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
             expect(err).to.haveOwnProperty('fields')
             expect(err['fields']).to.haveOwnProperty('price')
+            done()
             // a reprendre
         })
     })
@@ -176,7 +181,7 @@ describe("addManyArticles", () => {
         {
             user_id: rdm_user(tab_id_users),
             name: "",
-            description: "ceci est une description",
+            description: "oui",
             price: 15,
             quantity: 20
         }]
