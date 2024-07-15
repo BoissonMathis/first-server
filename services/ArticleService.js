@@ -1,17 +1,18 @@
-const UserSchema = require('../schemas/User')
+const ArticleSchema = require('../schemas/Article')
 const _ = require('lodash')
 const async = require('async')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId
 
-var User = mongoose.model('User', UserSchema)
+var Article = mongoose.model('Article', ArticleSchema)
 
-User.createIndexes()
+Article.createIndexes()
 
-module.exports.addOneUser = async function (user, callback) {
+module.exports.addOneArticle = async function (article, user_id, callback) {
+    article.user_id = user_id
     try {
-        var new_user = new User(user);
-        var errors = new_user.validateSync();
+        var new_article = new Article(article);
+        var errors = new_article.validateSync();
         if (errors) {
             errors = errors['errors'];
             var text = Object.keys(errors).map((e) => {
@@ -28,34 +29,23 @@ module.exports.addOneUser = async function (user, callback) {
             };
             callback(err);
         } else {
-            await new_user.save();
-            callback(null, new_user.toObject());
+            await new_article.save();
+            callback(null, new_article.toObject());
         }
     } catch (error) {
-        if (error.code === 11000) { // Erreur de duplicité
-            var field = Object.keys(error.keyValue)[0];
-            var err = {
-                msg: `Duplicate key error: ${field} must be unique.`,
-                fields_with_error: [field],
-                fields: { [field]: `The ${field} is already taken.` },
-                type_error: "duplicate"
-            };
-            callback(err);
-        } else {
-            callback(error); // Autres erreurs
-        }
+        callback(error); // Autres erreurs
     }
 };
 
-
-module.exports.addManyUsers = async function (users, callback) {
+module.exports.addManyArticles = async function (articles, user_id, callback) {
     var errors = [];
+    articles.forEach((e) => e.user_id = user_id)
 
     // Vérifier les erreurs de validation
-    for (var i = 0; i < users.length; i++) {
-        var user = users[i];
-        var new_user = new User(user);
-        var error = new_user.validateSync();
+    for (var i = 0; i < articles.length; i++) {
+        var article = articles[i];
+        var new_article = new Article(article);
+        var error = new_article.validateSync();
         if (error) {
             error = error['errors'];
             var text = Object.keys(error).map((e) => {
@@ -78,7 +68,7 @@ module.exports.addManyUsers = async function (users, callback) {
     } else {
         try {
             // Tenter d'insérer les utilisateurs
-            const data = await User.insertMany(users, { ordered: false });
+            const data = await Article.insertMany(articles, { ordered: false });
             callback(null, data);
         } catch (error) {
             if (error.code === 11000) { // Erreur de duplicité
@@ -101,18 +91,18 @@ module.exports.addManyUsers = async function (users, callback) {
     }
 };
 
-module.exports.findOneUserById = function (user_id, callback) {
-    if (user_id && mongoose.isValidObjectId(user_id)) {
-        User.findById(user_id).then((value) => {
+module.exports.findOneArticleById = function (article_id, callback) {
+    if (article_id && mongoose.isValidObjectId(article_id)) {
+        Article.findById(article_id).populate("user_id").then((value) => {
             try {
                 if (value) {
                     callback(null, value.toObject());
                 } else {
-                    callback({ msg: "Aucun utilisateur trouvé.", type_error: "no-found" });
+                    callback({ msg: "Aucun article trouvé.", type_error: "no-found" });
                 }
             }
             catch (e) {
-                
+                console.log(e)
             }
         }).catch((err) => {
             callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
@@ -122,29 +112,29 @@ module.exports.findOneUserById = function (user_id, callback) {
     }
 }
 
-module.exports.findManyUsersById = function (users_id, callback) {
+module.exports.findManyArticlesById = function (articles_id, callback) {
     
-    if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
-        users_id = users_id.map((e) => { return new ObjectId(e) })
-        User.find({ _id: users_id }).then((value) => {
+    if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
+        articles_id = articles_id.map((e) => { return new ObjectId(e) })
+        Article.find({ _id: articles_id }).populate("user_id").then((value) => {
             try {
                 if (value && Array.isArray(value) && value.length != 0) {
                     callback(null, value);
                 } else {
-                    callback({ msg: "Aucun utilisateur trouvé.", type_error: "no-found" });
+                    callback({ msg: "Aucun article trouvé.", type_error: "no-found" });
                 }
             }
             catch (e) {
-                
+                console.log(e)
             }
         }).catch((err) => {
             callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
         });
     }
-    else if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length != users_id.length) {
-        callback({ msg: "Tableau non conforme plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: users_id.filter((e) => { return !mongoose.isValidObjectId(e) }) });
+    else if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length != articles_id.length) {
+        callback({ msg: "Tableau non conforme plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: articles_id.filter((e) => { return !mongoose.isValidObjectId(e) }) });
     }
-    else if (users_id && !Array.isArray(users_id)) {
+    else if (articles_id && !Array.isArray(articles_id)) {
         callback({ msg: "L'argument n'est pas un tableau.", type_error: 'no-valid' });
     }
     else {
@@ -152,18 +142,19 @@ module.exports.findManyUsersById = function (users_id, callback) {
     }
 }
 
-module.exports.findOneUser = function (tab_field, value, callback) {
-    var field_unique = ['username', 'email']
+module.exports.findOneArticle = function (tab_field, value, callback) {
+    var field_unique = ['name', 'description', 'price', 'quantity']
+
     if (tab_field && Array.isArray(tab_field) && value && _.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1}).length == 0) {
         var obj_find = []
         _.forEach(tab_field, (e) => {
             obj_find.push({[e]: value})
         })
-        User.findOne({ $or: obj_find}).then((value) => {
-            if (value)
+        Article.findOne({ $or: obj_find}).populate("user_id").then((value) => {
+            if (value){
                 callback(null, value.toObject())
-            else {
-                callback({msg: "Utilisateur non trouvé.", type_error: "no-found"})
+            }else {
+                callback({msg: "Article non trouvé.", type_error: "no-found"})
             }
         }).catch((err) => {
             callback({msg: "Error interne mongo", type_error:'error-mongo'})
@@ -189,17 +180,17 @@ module.exports.findOneUser = function (tab_field, value, callback) {
     }
 }
 
-module.exports.findManyUsers = function(search, limit, page, callback) {
+module.exports.findManyArticles = function(search, limit, page, callback) {
     page = !page ? 1 : parseInt(page)
     limit = !limit ? 10 : parseInt(limit)
     if (typeof page !== "number" || typeof limit !== "number" || isNaN(page) || isNaN(limit)) {
         callback ({msg: `format de ${typeof page !== "number" ? "page" : "limit"} est incorrect`, type_error: "no-valid"})
     }else{
-        let query_mongo = search ? {$or: _.map(["firstName", "lastName", "username", "phone", "email"], (e) => {return {[e]: {$regex: search}}})} : {}
-        User.countDocuments(query_mongo).then((value) => {
+        let query_mongo = search ? {$or: _.map(["name", "description"], (e) => {return {[e]: {$regex: search}}})} : {}
+        Article.countDocuments(query_mongo).then((value) => {
             if (value > 0) {
                 const skip = ((page - 1) * limit)
-                User.find(query_mongo, null, {skip:skip, limit:limit}).then((results) => {
+                Article.find(query_mongo, null, {skip:skip, limit:limit}).populate("user_id").then((results) => {
                     callback(null, {
                         count: value,
                         results: results
@@ -214,18 +205,17 @@ module.exports.findManyUsers = function(search, limit, page, callback) {
     }
 }
 
-module.exports.updateOneUser = function (user_id, update, callback) {
-    if (user_id && mongoose.isValidObjectId(user_id)) {
-        User.findByIdAndUpdate(new ObjectId(user_id), update, { returnDocument: 'after', runValidators: true }).then((value) => {
+module.exports.updateOneArticle = function (article_id, update, callback) {
+    update.updated_at = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })
+    if (article_id && mongoose.isValidObjectId(article_id)) {
+        Article.findByIdAndUpdate(new ObjectId(article_id), update, { returnDocument: 'after', runValidators: true }).then((value) => {
             try {
                 // callback(null, value.toObject())
                 if (value)
                     callback(null, value.toObject())
                 else
-                    callback({ msg: "Utilisateur non trouvé.", type_error: "no-found" });
-
+                    callback({ msg: "Article non trouvé.", type_error: "no-found" });
             } catch (e) {
-                
                 callback(e)
             }
         }).catch((errors) => {
@@ -262,11 +252,11 @@ module.exports.updateOneUser = function (user_id, update, callback) {
 }
 
 
-module.exports.updateManyUsers = function (users_id, update, callback) {
+module.exports.updateManyArticles = function (articles_id, update, callback) {
     // 
-    if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
-        users_id = users_id.map((e) => { return new ObjectId(e) })
-        User.updateMany({ _id: users_id }, update, { runValidators: true }).then((value) => {
+    if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
+        articles_id = articles_id.map((e) => { return new ObjectId(e) })
+        Article.updateMany({ _id: articles_id }, update, { runValidators: true }).then((value) => {
             try {
                 // 
                 if(value && value.matchedCount != 0){
@@ -312,14 +302,14 @@ module.exports.updateManyUsers = function (users_id, update, callback) {
     }
 }
 
-module.exports.deleteOneUser = function (user_id, callback) {
-    if (user_id && mongoose.isValidObjectId(user_id)) {
-        User.findByIdAndDelete(user_id).then((value) => {
+module.exports.deleteOneArticle = function (article_id, callback) {
+    if (article_id && mongoose.isValidObjectId(article_id)) {
+        Article.findByIdAndDelete(article_id).then((value) => {
             try {
                 if (value)
                     callback(null, value.toObject())
                 else
-                    callback({ msg: "Utilisateur non trouvé.", type_error: "no-found" });
+                    callback({ msg: "Article non trouvé.", type_error: "no-found" });
             }
             catch (e) {
                 
@@ -334,19 +324,19 @@ module.exports.deleteOneUser = function (user_id, callback) {
     }
 }
 
-module.exports.deleteManyUsers = function (users_id, callback) {
-    if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
-        users_id = users_id.map((e) => { return new ObjectId(e) })
-        User.deleteMany({ _id: users_id }).then((value) => {
+module.exports.deleteManyArticles = function (articles_id, callback) {
+    if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
+        articles_id = articles_id.map((e) => { return new ObjectId(e) })
+        Article.deleteMany({ _id: articles_id }).then((value) => {
             callback(null, value)
         }).catch((err) => {
             callback({ msg: "Erreur mongo suppression.", type_error: "error-mongo" });
         })
     }
-    else if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length != users_id.length) {
-        callback({ msg: "Tableau non conforme plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: users_id.filter((e) => { return !mongoose.isValidObjectId(e) }) });
+    else if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length != articles_id.length) {
+        callback({ msg: "Tableau non conforme plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: articles_id.filter((e) => { return !mongoose.isValidObjectId(e) }) });
     }
-    else if (users_id && !Array.isArray(users_id)) {
+    else if (articles_id && !Array.isArray(articles_id)) {
         callback({ msg: "L'argement n'est pas un tableau.", type_error: 'no-valid' });
 
     }

@@ -204,7 +204,6 @@ describe("GET - /users_by_filters", () => {
     it("Chercher plusieurs utilisateurs avec une query contenant une chaine de caractère - S", (done) => {
         chai.request(server).get('/users_by_filters').query({page: 1, pageSize: 2, q: 'lu'})
         .end((err, res) => {
-            console.log(res.body)
             res.should.have.status(200)
             expect(res.body.results).to.be.an('array')
             expect(res.body.count).to.be.equal(3)

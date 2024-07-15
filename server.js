@@ -13,6 +13,7 @@ require('./utils/database')
 
 // Déclaration des controllers pour l'utilisateur
 const UserController = require('./controllers/UserController')
+const ArticleController = require('./controllers/ArticleController')
 
 // Déclaration des middlewares
 const DatabaseMiddleware = require('./middlewares/database')
@@ -53,6 +54,37 @@ app.delete('/user/:id', DatabaseMiddleware.checkConnexion, UserController.delete
 // Création du endpoint /user pour la suppression de plusieurs utilisateurs
 app.delete('/users', DatabaseMiddleware.checkConnexion, UserController.deleteManyUsers)
 
+/*--------------------- Création des routes (Article - Article) ---------------------*/
+
+// Création du endpoint /article pour l'ajout d'un article
+app.post('/article/:id', DatabaseMiddleware.checkConnexion, ArticleController.addOneArticle)
+
+// Création du endpoint /articles pour l'ajout de plusieurs articles
+app.post('/articles/:id', DatabaseMiddleware.checkConnexion, ArticleController.addManyArticles)
+
+// Création du endpoint /article pour la récupération d'un article via l'id
+app.get('/article/:id', DatabaseMiddleware.checkConnexion, ArticleController.findOneArticleById)
+
+// Création du endpoint /articles pour la récupération de plusieurs articles via l'idS
+app.get('/articles', DatabaseMiddleware.checkConnexion, ArticleController.findManyArticlesById)
+
+// Création du endpoint /article pour la récupération d'un article par le champ selectionné
+app.get('/article', DatabaseMiddleware.checkConnexion, ArticleController.findOneArticle)
+
+// Création du endpoint /articles_by_filters pour la récupération de plusieurs articles par champ selectionné
+app.get('/articles_by_filters', DatabaseMiddleware.checkConnexion, ArticleController.findManyArticles)
+
+// Création du endpoint /article pour la modification d'un article
+app.put('/article/:id', DatabaseMiddleware.checkConnexion, ArticleController.updateOneArticle)
+
+// Création du endpoint /articles pour la modification de plusieurs articles
+app.put('/articles', DatabaseMiddleware.checkConnexion, ArticleController.updateManyArticles)
+
+// Création du endpoint /article pour la suppression d'un article
+app.delete('/article/:id', DatabaseMiddleware.checkConnexion, ArticleController.deleteOneArticle)
+
+// Création du endpoint /articles pour la suppression de plusieurs articles
+app.delete('/articles', DatabaseMiddleware.checkConnexion, ArticleController.deleteManyArticles)
 
 // 2e chose à faire : Créer le server avec app.listen
 app.listen(Config.port, () => {   

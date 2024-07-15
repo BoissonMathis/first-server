@@ -8,3 +8,11 @@ describe("UserService", () => {
 describe("UserController", () => {
     require('./controllers/UserController.test')
 })
+
+describe("ArticleService", () => {
+    require('./services/ArticleService.test')
+})
+
+describe("ArticleController", () => {
+    require('./controllers/ArticleController.test')
+})

@@ -130,7 +130,7 @@ describe("findOneUser", () => {
 })
 
 describe("findManyUsers", () => {
-    it("Retourne 3 utilisateurs - S", (done) => {
+    it("Retourne 4 utilisateurs - S", (done) => {
         UserService.findManyUsers(null, 3, 1, function (err, value) {
             console.log(value)
             expect(value).to.haveOwnProperty("count")
