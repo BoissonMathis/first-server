@@ -5,7 +5,8 @@ const LoggerHttp = require ('../utils/logger').http
 module.exports.addOneArticle = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Création d'un article")
-    ArticleService.addOneArticle(req.body, req.params.id, function(err, value) {
+
+    ArticleService.addOneArticle(req.body, function(err, value) {
         if (err && err.type_error == "no found") {
             res.statusCode = 404
             res.send(err)
@@ -28,7 +29,7 @@ module.exports.addOneArticle = function(req, res) {
 // La fonction permet d'ajouter plusieurs articles
 module.exports.addManyArticles = function(req, res) {
     req.log.info("Création de plusieurs articles")
-    ArticleService.addManyArticles(req.body, req.params.id, function(err, value) {
+    ArticleService.addManyArticles(req.body, function(err, value) {
         if (err) {
             res.statusCode = 405
             res.send(err)
@@ -42,7 +43,9 @@ module.exports.addManyArticles = function(req, res) {
 // La fonction permet de chercher un article
 module.exports.findOneArticleById = function(req, res) {
     req.log.info("Recherche d'un article par son id")
-    ArticleService.findOneArticleById(req.params.id, function(err, value) {        
+    let opts = {populate: req.query.populate}
+
+    ArticleService.findOneArticleById(req.params.id, opts, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -66,10 +69,12 @@ module.exports.findOneArticleById = function(req, res) {
 module.exports.findManyArticlesById = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Recherche de plusieurs articles", req.query.id)
-    var arg = req.query.id
+    let arg = req.query.id
+    let opts = {populate: req.query.populate}
     if (arg && !Array.isArray(arg))
         arg=[arg]
-    ArticleService.findManyArticlesById(arg, function(err, value) {
+
+    ArticleService.findManyArticlesById(arg, opts, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -94,9 +99,11 @@ module.exports.findOneArticle = function(req, res){
     LoggerHttp(req, res)
     req.log.info("Recherche d'un article par un champ autorisé")
     let fields = req.query.fields
+    let opts = {populate: req.query.populate}
     if (fields && !Array.isArray(fields))
         fields = [fields]
-    ArticleService.findOneArticle(fields, req.query.value, function(err, value) {        
+
+    ArticleService.findOneArticle(fields, req.query.value, opts, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -122,7 +129,9 @@ module.exports.findManyArticles = function(req, res) {
     let page = req.query.page
     let pageSize = req.query.pageSize
     let searchValue = req.query.q
-    ArticleService.findManyArticles(searchValue, pageSize, page,  function(err, value) {        
+    let opts = {populate: req.query.populate}
+
+    ArticleService.findManyArticles(searchValue, pageSize, page,  opts, function(err, value) {        
         if (err && err.type_error == "no-valid") {
             res.statusCode = 405
             res.send(err)

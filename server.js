@@ -57,10 +57,10 @@ app.delete('/users', DatabaseMiddleware.checkConnexion, UserController.deleteMan
 /*--------------------- Création des routes (Article - Article) ---------------------*/
 
 // Création du endpoint /article pour l'ajout d'un article
-app.post('/article/:id', DatabaseMiddleware.checkConnexion, ArticleController.addOneArticle)
+app.post('/article', DatabaseMiddleware.checkConnexion, ArticleController.addOneArticle)
 
 // Création du endpoint /articles pour l'ajout de plusieurs articles
-app.post('/articles/:id', DatabaseMiddleware.checkConnexion, ArticleController.addManyArticles)
+app.post('/articles', DatabaseMiddleware.checkConnexion, ArticleController.addManyArticles)
 
 // Création du endpoint /article pour la récupération d'un article via l'id
 app.get('/article/:id', DatabaseMiddleware.checkConnexion, ArticleController.findOneArticleById)

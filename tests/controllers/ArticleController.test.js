@@ -51,7 +51,8 @@ chai.use(chaiHttp)
 
 describe("POST - /article", () => {
     it("Ajouter un article. - S", (done) => {
-        chai.request(server).post('/article/' + rdm_user(tab_id_users)).send({
+        chai.request(server).post('/article').send({
+            user_id: rdm_user(tab_id_users),
             name: "voiture",
             description: "ceci est une description",
             price: 12000,
@@ -63,7 +64,8 @@ describe("POST - /article", () => {
         });
     })
     it("Ajouter un article incorrect. (Sans name) - E", (done) => {
-        chai.request(server).post('/article/' + rdm_user(tab_id_users)).send({
+        chai.request(server).post('/article').send({
+            user_id: rdm_user(tab_id_users),
             description: "ceci est une description",
             price: 12000,
             quantity: 40
@@ -73,7 +75,8 @@ describe("POST - /article", () => {
         })
     })
     it("Ajouter un article incorrect. (Avec une quantité < 0 ) - E", (done) => {
-        chai.request(server).post('/article/' + rdm_user(tab_id_users)).send({
+        chai.request(server).post('/article').send({
+            user_id: rdm_user(tab_id_users),
             name: "avion",
             description: "ceci est une description",
             price: 1000000,
@@ -84,7 +87,8 @@ describe("POST - /article", () => {
         })
     })
     it("Ajouter un article incorrect. (Avec un champ vide) - E", (done) => {
-        chai.request(server).post('/article/' + rdm_user(tab_id_users)).send({
+        chai.request(server).post('/article').send({
+            user_id: rdm_user(tab_id_users),
             name: "",
             description: "ceci est une description",
             price: 20,

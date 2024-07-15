@@ -8,18 +8,17 @@ var Article = mongoose.model('Article', ArticleSchema)
 
 Article.createIndexes()
 
-module.exports.addOneArticle = async function (article, user_id, callback) {
-    article.user_id = user_id
+module.exports.addOneArticle = async function (article, callback) {
     try {
         var new_article = new Article(article);
         var errors = new_article.validateSync();
         if (errors) {
             errors = errors['errors'];
             var text = Object.keys(errors).map((e) => {
-                return errors[e]['properties']['message'];
+                return errors[e]['properties'] ? errors[e]['properties']['message']:errors[e]['reason'] ;
             }).join(' ');
             var fields = _.transform(Object.keys(errors), function (result, value) {
-                result[value] = errors[value]['properties']['message'];
+                result[value] = errors[value]['properties'] ? errors[value]['properties']['message']:String(errors[value]['reason']) ;
             }, {});
             var err = {
                 msg: text,
@@ -37,9 +36,8 @@ module.exports.addOneArticle = async function (article, user_id, callback) {
     }
 };
 
-module.exports.addManyArticles = async function (articles, user_id, callback) {
+module.exports.addManyArticles = async function (articles, callback) {
     var errors = [];
-    articles.forEach((e) => e.user_id = user_id)
 
     // Vérifier les erreurs de validation
     for (var i = 0; i < articles.length; i++) {
@@ -91,9 +89,12 @@ module.exports.addManyArticles = async function (articles, user_id, callback) {
     }
 };
 
-module.exports.findOneArticleById = function (article_id, callback) {
+module.exports.findOneArticleById = function (article_id, options, callback) {
+
+    let opts = {populate: options && options.populate ? ["user_id"] : []}
+
     if (article_id && mongoose.isValidObjectId(article_id)) {
-        Article.findById(article_id).populate("user_id").then((value) => {
+        Article.findById(article_id, null, opts).then((value) => {
             try {
                 if (value) {
                     callback(null, value.toObject());
@@ -112,11 +113,12 @@ module.exports.findOneArticleById = function (article_id, callback) {
     }
 }
 
-module.exports.findManyArticlesById = function (articles_id, callback) {
+module.exports.findManyArticlesById = function (articles_id, options, callback) {
     
+    let opts = {populate: options && options.populate ? ['user_id'] : []}
     if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
         articles_id = articles_id.map((e) => { return new ObjectId(e) })
-        Article.find({ _id: articles_id }).populate("user_id").then((value) => {
+        Article.find({ _id: articles_id }, null, opts).then((value) => {
             try {
                 if (value && Array.isArray(value) && value.length != 0) {
                     callback(null, value);
@@ -142,7 +144,8 @@ module.exports.findManyArticlesById = function (articles_id, callback) {
     }
 }
 
-module.exports.findOneArticle = function (tab_field, value, callback) {
+module.exports.findOneArticle = function (tab_field, value, options, callback) {
+    let opts = {populate: options && options.populate ? ['user_id'] : []}
     var field_unique = ['name', 'description', 'price', 'quantity']
 
     if (tab_field && Array.isArray(tab_field) && value && _.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1}).length == 0) {
@@ -150,7 +153,7 @@ module.exports.findOneArticle = function (tab_field, value, callback) {
         _.forEach(tab_field, (e) => {
             obj_find.push({[e]: value})
         })
-        Article.findOne({ $or: obj_find}).populate("user_id").then((value) => {
+        Article.findOne({ $or: obj_find}, null, opts).then((value) => {
             if (value){
                 callback(null, value.toObject())
             }else {
@@ -180,9 +183,11 @@ module.exports.findOneArticle = function (tab_field, value, callback) {
     }
 }
 
-module.exports.findManyArticles = function(search, limit, page, callback) {
+module.exports.findManyArticles = function(search, limit, page, options, callback) {
+    let populate = options && options.populate ? ['user_id'] : []
     page = !page ? 1 : parseInt(page)
     limit = !limit ? 10 : parseInt(limit)
+
     if (typeof page !== "number" || typeof limit !== "number" || isNaN(page) || isNaN(limit)) {
         callback ({msg: `format de ${typeof page !== "number" ? "page" : "limit"} est incorrect`, type_error: "no-valid"})
     }else{
@@ -190,7 +195,7 @@ module.exports.findManyArticles = function(search, limit, page, callback) {
         Article.countDocuments(query_mongo).then((value) => {
             if (value > 0) {
                 const skip = ((page - 1) * limit)
-                Article.find(query_mongo, null, {skip:skip, limit:limit}).populate("user_id").then((results) => {
+                Article.find(query_mongo, null, {skip:skip, limit:limit, populate: populate}).then((results) => {
                     callback(null, {
                         count: value,
                         results: results

@@ -47,7 +47,6 @@ module.exports.addOneUser = async function (user, callback) {
     }
 };
 
-
 module.exports.addManyUsers = async function (users, callback) {
     var errors = [];
 
@@ -102,6 +101,7 @@ module.exports.addManyUsers = async function (users, callback) {
 };
 
 module.exports.findOneUserById = function (user_id, callback) {
+    
     if (user_id && mongoose.isValidObjectId(user_id)) {
         User.findById(user_id).then((value) => {
             try {
@@ -112,7 +112,7 @@ module.exports.findOneUserById = function (user_id, callback) {
                 }
             }
             catch (e) {
-                
+                console.log(e)
             }
         }).catch((err) => {
             callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
