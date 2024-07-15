@@ -1,8 +1,6 @@
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId
 
-const date = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })
-
 var ArticleSchema = mongoose.Schema({
     user_id: {
         type: ObjectId,
@@ -29,7 +27,7 @@ var ArticleSchema = mongoose.Schema({
     },
     created_at: {
         type: Date,
-        default: date
+        default: new Date()
     },
     updated_at: {
         type: Date,

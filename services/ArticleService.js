@@ -206,7 +206,7 @@ module.exports.findManyArticles = function(search, limit, page, callback) {
 }
 
 module.exports.updateOneArticle = function (article_id, update, callback) {
-    update.updated_at = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })
+    update.updated_at = new Date()
     if (article_id && mongoose.isValidObjectId(article_id)) {
         Article.findByIdAndUpdate(new ObjectId(article_id), update, { returnDocument: 'after', runValidators: true }).then((value) => {
             try {
