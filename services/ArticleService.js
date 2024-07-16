@@ -217,7 +217,6 @@ module.exports.updateOneArticle = function (article_id, update, options, callbac
     if (article_id && mongoose.isValidObjectId(article_id)) {
         Article.findByIdAndUpdate(new ObjectId(article_id), update, { returnDocument: 'after', runValidators: true }).then((value) => {
             try {
-                // callback(null, value.toObject())
                 if (value)
                     callback(null, value.toObject())
                 else

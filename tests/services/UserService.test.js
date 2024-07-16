@@ -12,7 +12,8 @@ describe("addOneUser", () => {
             firstName: "Edouard",
             lastName: "Dupont",
             email: "edouard.dupont1@gmail.com",
-            username: "edupont1"
+            username: "edupont1",
+            password: "1234"
         }
         UserService.addOneUser(user, null, function (err, value) {
             expect(value).to.be.a('object');
@@ -26,7 +27,8 @@ describe("addOneUser", () => {
         var user_no_valid = {
             lastName: "Dupont",
             email: "edouard.dupont2@gmail.com",
-            username: "edupont2"
+            username: "edupont2",
+            password: "1234"
         }
         UserService.addOneUser(user_no_valid, null, function (err, value) {
             expect(err).to.haveOwnProperty('msg')
@@ -45,14 +47,16 @@ describe("addManyUsers", () => {
             firstName: "Edouard",
             lastName: "Dupont",
             email: "edouard.dupont3@gmail.com",
-            username: "edupont3"
+            username: "edupont3",
+            password: "1234"
         }, {
             firstName: "Edouard",
             lastName: "Dupont",
             email: "edouard.dupont4@gmail.com",
             username: "",
             testing: true,
-            phone: "0645102340"
+            phone: "0645102340",
+            password: "1234"
         },
         {
             firstName: "Edouard",
@@ -60,10 +64,12 @@ describe("addManyUsers", () => {
             email: "edouard.dupon5t@gmail.com",
             username: "edupont4",
             testing: true,
-            phone: "0645102340"
+            phone: "0645102340",
+            password: "1234"
         }, {
             firstName: "Edouard",
-            email: "edouard.dupont6@gmail.com"
+            email: "edouard.dupont6@gmail.com",
+            password: "1234"
         }]
 
         UserService.addManyUsers(users_tab_error, null, function (err, value) {
@@ -75,14 +81,16 @@ describe("addManyUsers", () => {
             firstName: "Louison",
             lastName: "Dupont",
             email: "edouard.dupont7@gmail.com",
-            username: "edupont5"
+            username: "edupont5",
+            password: "1234"
         }, {
             firstName: "Jordan",
             lastName: "Dupont",
             email: "edouard.dupont8@gmail.com",
             username: "La",
             testing: true,
-            phone: "0645102340"
+            phone: "0645102340",
+            password: "1234"
         },
         {
             firstName: "Mathis",
@@ -90,7 +98,8 @@ describe("addManyUsers", () => {
             email: "edouard.dupont9@gmail.com",
             username: "edupont6",
             testing: true,
-            phone: "0645102340"
+            phone: "0645102340",
+            password: "1234"
         }]
 
         UserService.addManyUsers(users_tab, null, function (err, value) {

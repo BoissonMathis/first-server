@@ -21,7 +21,12 @@ var UserSchema = mongoose.Schema({
         index: true,
         unique: true
     },
-    phone: String
+    phone: String,
+    password: {
+        type: String,
+        required: true
+    },
+    token: String
 })
 
 module.exports = UserSchema

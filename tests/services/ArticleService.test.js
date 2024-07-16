@@ -13,25 +13,29 @@ let users = [
         firstName: "Détenteur d'article 1",
         lastName: "Iencli",
         username: "oui1",
-        email:"iencli1@gmail.com"
+        email:"iencli1@gmail.com",
+        password: "1234"
     },
     {
         firstName: "Détenteur d'article 2",
         lastName: "Iencli",
         username: "oui2",
-        email:"iencli2@gmail.com"
+        email:"iencli2@gmail.com",
+        password: "1234"
     },
     {
         firstName: "Détenteur d'article 3",
         lastName: "Iencli",
         username: "oui3",
-        email:"iencli3@gmail.com"
+        email:"iencli3@gmail.com",
+        password: "1234"
     },
     {
         firstName: "Détenteur d'article 4",
         lastName: "Iencli",
         username: "oui4",
-        email:"iencli4@gmail.com"
+        email:"iencli4@gmail.com",
+        password: "1234"
     },
 ];
 

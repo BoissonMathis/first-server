@@ -15,7 +15,8 @@ describe("POST - /user", () => {
             firstName: "luf",
             lastName: "Us",
             username: "dwarfSlayer",
-            email: "lutfu.us@gmail.com"
+            email: "lutfu.us@gmail.com",
+            password: "1234"
         }).end((err, res) => {
             expect(res).to.have.status(201)
             users.push(res.body)
@@ -26,7 +27,8 @@ describe("POST - /user", () => {
         chai.request(server).post('/user').send({
             lastName: 'Us',
             username: 'dwarfSlayr',
-            email: 'lutfu.us@gmil.com'
+            email: 'lutfu.us@gmil.com',
+            password: "1234"
         }).end((err, res) => {
             expect(res).to.have.status(405)
             done()
@@ -37,7 +39,8 @@ describe("POST - /user", () => {
             firstName: "luf",
             lastName: "Us",
             username: "dwarfSlayer",
-            email: "lutfu.us@gmai.com"
+            email: "lutfu.us@gmai.com",
+            password: "1234"
         }).end((err, res) => {
             expect(res).to.have.status(405)
             done()
@@ -48,7 +51,8 @@ describe("POST - /user", () => {
             firstName: "luffu",
             lastName: "",
             username: "dwarfSlaye",
-            email: "lufu.us@gmai.com"
+            email: "lufu.us@gmai.com",
+            password: "1234"
         }).end((err, res) => {
             expect(res).to.have.status(405)
             done()
@@ -62,13 +66,15 @@ describe("POST - /users", () => {
             firstName: "luf",
             lastName: "Us",
             username: "dwathttvrfSlayer",
-            email: "lutfgfbu.us@gmail.com"
+            email: "lutfgfbu.us@gmail.com",
+            password: "1234"
         },
         {
             firstName: "luf",
             lastName: "Us",
             username: "dwgfbarfSlayer",
-            email: "lutgbffu.us@gmail.com"
+            email: "lutgbffu.us@gmail.com",
+            password: "1234"
         }]
         ).end((err, res) => {
             res.should.have.status(201)
