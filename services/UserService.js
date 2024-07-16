@@ -9,6 +9,7 @@ var User = mongoose.model('User', UserSchema)
 User.createIndexes()
 
 module.exports.addOneUser = async function (user, callback) {
+
     try {
         var new_user = new User(user);
         var errors = new_user.validateSync();
@@ -154,6 +155,7 @@ module.exports.findManyUsersById = function (users_id, callback) {
 
 module.exports.findOneUser = function (tab_field, value, callback) {
     var field_unique = ['username', 'email']
+    
     if (tab_field && Array.isArray(tab_field) && value && _.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1}).length == 0) {
         var obj_find = []
         _.forEach(tab_field, (e) => {
@@ -192,6 +194,7 @@ module.exports.findOneUser = function (tab_field, value, callback) {
 module.exports.findManyUsers = function(search, limit, page, callback) {
     page = !page ? 1 : parseInt(page)
     limit = !limit ? 10 : parseInt(limit)
+
     if (typeof page !== "number" || typeof limit !== "number" || isNaN(page) || isNaN(limit)) {
         callback ({msg: `format de ${typeof page !== "number" ? "page" : "limit"} est incorrect`, type_error: "no-valid"})
     }else{
@@ -218,7 +221,6 @@ module.exports.updateOneUser = function (user_id, update, callback) {
     if (user_id && mongoose.isValidObjectId(user_id)) {
         User.findByIdAndUpdate(new ObjectId(user_id), update, { returnDocument: 'after', runValidators: true }).then((value) => {
             try {
-                // callback(null, value.toObject())
                 if (value)
                     callback(null, value.toObject())
                 else
@@ -238,7 +240,7 @@ module.exports.updateOneUser = function (user_id, update, callback) {
                     type_error: "duplicate"
                 };
                 callback(duplicateErrors)
-            }else {
+            }else{
                 errors = errors['errors']
                 var text = Object.keys(errors).map((e) => {
                     return errors[e]['properties']['message']
@@ -263,12 +265,11 @@ module.exports.updateOneUser = function (user_id, update, callback) {
 
 
 module.exports.updateManyUsers = function (users_id, update, callback) {
-    // 
+
     if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
         users_id = users_id.map((e) => { return new ObjectId(e) })
         User.updateMany({ _id: users_id }, update, { runValidators: true }).then((value) => {
             try {
-                // 
                 if(value && value.matchedCount != 0){
                     callback(null, value)
                 }else {
@@ -335,6 +336,7 @@ module.exports.deleteOneUser = function (user_id, callback) {
 }
 
 module.exports.deleteManyUsers = function (users_id, callback) {
+    
     if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
         users_id = users_id.map((e) => { return new ObjectId(e) })
         User.deleteMany({ _id: users_id }).then((value) => {
@@ -348,7 +350,6 @@ module.exports.deleteManyUsers = function (users_id, callback) {
     }
     else if (users_id && !Array.isArray(users_id)) {
         callback({ msg: "L'argement n'est pas un tableau.", type_error: 'no-valid' });
-
     }
     else {
         callback({ msg: "Tableau non conforme.", type_error: 'no-valid' });

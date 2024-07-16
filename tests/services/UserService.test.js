@@ -191,7 +191,6 @@ describe("updateOneUser", () => {
             expect(value['firstName']).to.be.equal('Jean')
             expect(value['lastName']).to.be.equal('Luc')
             done()
-
         })
     })
     it("Modifier un utilisateur avec id incorrect. - E", (done) => {
