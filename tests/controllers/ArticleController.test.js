@@ -36,7 +36,7 @@ let users = [
 ];
 
 it("Création des utilisateurs fictif", (done) => {
-    UserService.addManyUsers(users, function (err, value) {
+    UserService.addManyUsers(users, null, function (err, value) {
         tab_id_users = _.map(value, '_id')
         done()
     })
@@ -324,7 +324,7 @@ describe("DELETE - /articles", () => {
 })
 
 it("Suppression des utilisateurs fictif", (done) => {
-    UserService.deleteManyUsers(tab_id_users, function (err, value) {
+    UserService.deleteManyUsers(tab_id_users, null, function (err, value) {
         done()
     })
 })

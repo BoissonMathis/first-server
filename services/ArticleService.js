@@ -8,8 +8,7 @@ var Article = mongoose.model('Article', ArticleSchema)
 
 Article.createIndexes()
 
-module.exports.addOneArticle = async function (article, callback) {
-
+module.exports.addOneArticle = async function (article, options, callback) {
     try {
         var new_article = new Article(article);
         var errors = new_article.validateSync();
@@ -33,11 +32,13 @@ module.exports.addOneArticle = async function (article, callback) {
             callback(null, new_article.toObject());
         }
     } catch (error) {
+        console.log(error)
         callback(error); // Autres erreurs
     }
 };
 
-module.exports.addManyArticles = async function (articles, callback) {
+module.exports.addManyArticles = async function (articles, options, callback) {
+    let opts = options
     var errors = [];
     // Vérifier les erreurs de validation
     for (var i = 0; i < articles.length; i++) {
@@ -113,7 +114,7 @@ module.exports.findOneArticleById = function (article_id, options, callback) {
 }
 
 module.exports.findManyArticlesById = function (articles_id, options, callback) {
-    let opts = {populate: options && options.populate ? ['user_id'] : []}
+    let opts = {populate: (options && options.populate ? ['user_id'] : []), lean: true}
 
     if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
         articles_id = articles_id.map((e) => { return new ObjectId(e) })
@@ -194,7 +195,7 @@ module.exports.findManyArticles = function(search, limit, page, options, callbac
         Article.countDocuments(query_mongo).then((value) => {
             if (value > 0) {
                 const skip = ((page - 1) * limit)
-                Article.find(query_mongo, null, {skip:skip, limit:limit, populate: populate}).then((results) => {
+                Article.find(query_mongo, null, {skip:skip, limit:limit, populate: populate, lean: true}).then((results) => {
                     callback(null, {
                         count: value,
                         results: results
@@ -209,7 +210,8 @@ module.exports.findManyArticles = function(search, limit, page, options, callbac
     }
 }
 
-module.exports.updateOneArticle = function (article_id, update, callback) {
+module.exports.updateOneArticle = function (article_id, update, options, callback) {
+    let opts = options
     update.updated_at = new Date()
 
     if (article_id && mongoose.isValidObjectId(article_id)) {
@@ -257,20 +259,19 @@ module.exports.updateOneArticle = function (article_id, update, callback) {
 }
 
 
-module.exports.updateManyArticles = function (articles_id, update, callback) {
+module.exports.updateManyArticles = function (articles_id, update, options, callback) {
+    let opts = options
 
     if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
         articles_id = articles_id.map((e) => { return new ObjectId(e) })
         Article.updateMany({ _id: articles_id }, update, { runValidators: true }).then((value) => {
             try {
-                // 
                 if(value && value.matchedCount != 0){
                     callback(null, value)
                 }else {
                     callback({msg: 'Utilisateurs non trouvé', type_error: 'no-found'})
                 }
             } catch (e) {
-                
                 callback(e)
             }
         }).catch((errors) => {
@@ -307,7 +308,8 @@ module.exports.updateManyArticles = function (articles_id, update, callback) {
     }
 }
 
-module.exports.deleteOneArticle = function (article_id, callback) {
+module.exports.deleteOneArticle = function (article_id, options, callback) {
+    let opts = options
 
     if (article_id && mongoose.isValidObjectId(article_id)) {
         Article.findByIdAndDelete(article_id).then((value) => {
@@ -330,7 +332,8 @@ module.exports.deleteOneArticle = function (article_id, callback) {
     }
 }
 
-module.exports.deleteManyArticles = function (articles_id, callback) {
+module.exports.deleteManyArticles = function (articles_id, options, callback) {
+    let opts = options
 
     if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
         articles_id = articles_id.map((e) => { return new ObjectId(e) })

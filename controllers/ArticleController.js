@@ -6,7 +6,7 @@ module.exports.addOneArticle = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Création d'un article")
 
-    ArticleService.addOneArticle(req.body, function(err, value) {
+    ArticleService.addOneArticle(req.body, null, function(err, value) {
         if (err && err.type_error == "no found") {
             res.statusCode = 404
             res.send(err)
@@ -30,7 +30,7 @@ module.exports.addOneArticle = function(req, res) {
 module.exports.addManyArticles = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Création de plusieurs articles")
-    ArticleService.addManyArticles(req.body, function(err, value) {
+    ArticleService.addManyArticles(req.body, null, function(err, value) {
         if (err) {
             res.statusCode = 405
             res.send(err)
@@ -153,7 +153,7 @@ module.exports.updateOneArticle = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Modification d'un article")
     let update = req.body
-    ArticleService.updateOneArticle(req.params.id, update, function(err, value) {
+    ArticleService.updateOneArticle(req.params.id, update, null, function(err, value) {
         //
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
@@ -181,7 +181,7 @@ module.exports.updateManyArticles = function(req, res) {
     if (arg && !Array.isArray(arg))
         arg = [arg]
     var updateData = req.body
-    ArticleService.updateManyArticles(arg, updateData, function(err, value) {
+    ArticleService.updateManyArticles(arg, updateData, null, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -204,7 +204,7 @@ module.exports.updateManyArticles = function(req, res) {
 module.exports.deleteOneArticle = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Suppression d'un article")
-    ArticleService.deleteOneArticle(req.params.id, function(err, value) {        
+    ArticleService.deleteOneArticle(req.params.id, null, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -231,7 +231,7 @@ module.exports.deleteManyArticles = function(req, res) {
     var arg = req.query.id
     if (arg && !Array.isArray(arg))
         arg = [arg]
-    ArticleService.deleteManyArticles(arg, function(err, value) {
+    ArticleService.deleteManyArticles(arg, null, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
