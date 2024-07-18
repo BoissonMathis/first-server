@@ -3,7 +3,7 @@ const mongoose = require ('mongoose')
 module.exports.checkConnexion = function(req,res,next) {
     if (mongoose.connection.readyState == 1) {
         req.log.info("Verification de la connection base de donnée : OK")
-    next()
+        next()
     }
     else {
         req.log.info("Verification de la connection base de donnée : NOK")

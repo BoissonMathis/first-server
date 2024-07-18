@@ -12,26 +12,18 @@ passport.deserializeUser((user, done) => done(null, user))
 
 passport.use('login', new LocalStrategy({passReqToCallback: true}, function(req, username, password, done){
     // création du systeme de login avec comparaison des mot de passe
-    console.log(username, password)
-    UserService.findOneUser(['username', 'email'], username, null, (err, value) => {
-        console.log(err, value)
-        if(err){
-            done(err)
-        }else{
-            
-        }
-    })
+    // console.log(username, password)
+    UserService.loginUser(username, password, null, done)
 }))
 
 passport.use(new JWTStrategy({
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-    secretOrKey: "MY_SECRET_KEY_HASH",
+    secretOrKey: ConfigFile.secret_key,
     passReqToCallback: true
 }, function(req, jwt_payload, done) {
     // déchiffrer le token et lire les informations dedans. (_id) => pour recherche l'utilisateur
     UserService.findOneUserById(jwt_payload._id, null, function(err, value){
         if(err){
-            
             done(err)
         }else{
             done(null, value)

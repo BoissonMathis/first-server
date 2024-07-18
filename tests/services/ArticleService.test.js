@@ -131,9 +131,10 @@ describe("addOneArticle", () => {
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
             expect(err).to.haveOwnProperty('fields')
+            expect(err).to.haveOwnProperty('type_error')
+            expect(err['type_error']).to.equal('validator')
             expect(err['fields']).to.haveOwnProperty('price')
             done()
-            // a reprendre
         })
     })
 })

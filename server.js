@@ -14,7 +14,18 @@ require('./utils/database')
 // Ajout du module de login
 const passport = require('./utils/passport')
 // passport init
+
+var session = require('express-session')
+
+app.use(session({
+    secret: Config.secret_cookie,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+}))
+
 app.use(passport.initialize())
+app.use(passport.session())
 
 // Déclaration des controllers pour l'utilisateur
 const UserController = require('./controllers/UserController')
@@ -46,7 +57,7 @@ app.get('/user/:id', DatabaseMiddleware.checkConnexion, UserController.findOneUs
 app.get('/users', DatabaseMiddleware.checkConnexion, UserController.findManyUsersById)
 
 // Création du endpoint /users_by_filters pour la récupération de plusieurs utilisateurs
-app.get('/users_by_filters', DatabaseMiddleware.checkConnexion, UserController.findManyUsers)
+app.get('/users_by_filters', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.findManyUsers)
 
 // Création du endpoint /user pour la modification d'un utilisateur
 app.put('/user/:id', DatabaseMiddleware.checkConnexion, UserController.updateOneUser)
