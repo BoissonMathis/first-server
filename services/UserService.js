@@ -4,6 +4,7 @@ const async = require('async')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId
 const bcrypt = require('bcrypt')
+const TokenUtils = require('./../utils/token')
 const SALT_WORK_FACTOR = 10
 
 var User = mongoose.model('User', UserSchema)
