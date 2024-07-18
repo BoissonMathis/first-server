@@ -48,28 +48,28 @@ app.post('/user', DatabaseMiddleware.checkConnexion, UserController.addOneUser)
 app.post('/users', DatabaseMiddleware.checkConnexion, UserController.addManyUsers)
 
 // Création du endpoint /user pour la récupération d'un utilisateur par le champ selectionné
-app.get('/user', DatabaseMiddleware.checkConnexion, UserController.findOneUser)
+app.get('/user', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.findOneUser)
 
 // Création du endpoint /user pour la récupération d'un utilisateur via l'id
-app.get('/user/:id', DatabaseMiddleware.checkConnexion, UserController.findOneUserById)
+app.get('/user/:id', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.findOneUserById)
 
 // Création du endpoint /user pour la récupération de plusieurs utilisateurs via l'idS
-app.get('/users', DatabaseMiddleware.checkConnexion, UserController.findManyUsersById)
+app.get('/users', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.findManyUsersById)
 
 // Création du endpoint /users_by_filters pour la récupération de plusieurs utilisateurs
 app.get('/users_by_filters', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.findManyUsers)
 
 // Création du endpoint /user pour la modification d'un utilisateur
-app.put('/user/:id', DatabaseMiddleware.checkConnexion, UserController.updateOneUser)
+app.put('/user/:id', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.updateOneUser)
 
 // Création du endpoint /user pour la modification de plusieurs utilisateurs
-app.put('/users', DatabaseMiddleware.checkConnexion, UserController.updateManyUsers)
+app.put('/users', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.updateManyUsers)
 
 // Création du endpoint /user pour la suppression d'un utilisateur
-app.delete('/user/:id', DatabaseMiddleware.checkConnexion, UserController.deleteOneUser)
+app.delete('/user/:id', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.deleteOneUser)
 
 // Création du endpoint /user pour la suppression de plusieurs utilisateurs
-app.delete('/users', DatabaseMiddleware.checkConnexion, UserController.deleteManyUsers)
+app.delete('/users', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.deleteManyUsers)
 
 /*--------------------- Création des routes (Article - Article) ---------------------*/
 
