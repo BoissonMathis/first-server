@@ -10,6 +10,22 @@ var User = mongoose.model('User', UserSchema)
 
 User.createIndexes()
 
+module.exports.loginUser = async function (username, password, options, callback) {
+    module.exports.findOneUser(['username', 'email'], username, null, async (err, value) => {
+      if (err)
+        done(err)
+      else {
+        if (bcrypt.compareSync(password, value.password)) {
+          var token = TokenUtils.createToken({ _id: value._id }, null)
+          callback(null, { ...value, token: token })
+        }
+        else {
+          callback({ msg: "La comparaison des mots de passe sont fausses", type_error: "no_comparaison" })
+        }
+      }
+    })
+}
+
 module.exports.addOneUser = async function (user, options, callback) {
 
     try {
@@ -275,7 +291,6 @@ module.exports.updateOneUser = async function (user_id, update, options, callbac
         callback({ msg: "Id invalide.", type_error: 'no-valid' })
     }
 }
-
 
 module.exports.updateManyUsers = async function (users_id, update, options, callback) {
 
