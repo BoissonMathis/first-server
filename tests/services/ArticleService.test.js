@@ -7,6 +7,7 @@ var id_article_valid = ""
 var tab_id_articles = []
 var tab_id_users = []
 var articles = []
+var valid_token = ''
 
 let users = [
     {
@@ -42,6 +43,13 @@ let users = [
 it("Création des utilisateurs fictif", (done) => {
     UserService.addManyUsers(users, null, function (err, value) {
         tab_id_users = _.map(value, '_id')
+        done()
+    })
+})
+
+it("Authentification d'un utilisateur fictif.", (done) => {
+    UserService.loginUser('oui4', "1234", null, function(err, value) {
+        valid_token = value.token
         done()
     })
 })

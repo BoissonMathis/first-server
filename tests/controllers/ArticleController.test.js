@@ -7,6 +7,7 @@ let should = chai.should();
 const _ = require('lodash')
 var tab_id_users = []
 var articles = []
+var valid_token = ''
 
 let users = [
     {
@@ -39,10 +40,21 @@ let users = [
     }
 ];
 
-it("Création des utilisateurs fictif", (done) => {
-    UserService.addManyUsers(users, null, function (err, value) {
-        tab_id_users = _.map(value, '_id')
-        done()
+describe("POST - /users", () => {
+    it("Création des utilisateurs fictif", (done) => {
+        UserService.addManyUsers(users, null, function (err, value) {
+            tab_id_users = _.map(value, '_id')
+            done()
+        })
+    })
+})
+
+describe("POST - /login", () => {
+    it("Authentification d'un utilisateur fictif.", (done) => {
+        UserService.loginUser('oui4', "1234", null, function(err, value) {
+            valid_token = value.token
+            done()
+        })
     })
 })
 
@@ -55,7 +67,7 @@ chai.use(chaiHttp)
 
 describe("POST - /article", () => {
     it("Ajouter un article. - S", (done) => {
-        chai.request(server).post('/article').send({
+        chai.request(server).post('/article').auth(valid_token, { type: 'bearer' }).send({
             user_id: rdm_user(tab_id_users),
             name: "voiture",
             description: "ceci est une description",
@@ -68,7 +80,7 @@ describe("POST - /article", () => {
         });
     })
     it("Ajouter un article incorrect. (Sans name) - E", (done) => {
-        chai.request(server).post('/article').send({
+        chai.request(server).post('/article').auth(valid_token, { type: 'bearer' }).send({
             user_id: rdm_user(tab_id_users),
             description: "ceci est une description",
             price: 12000,
@@ -79,7 +91,7 @@ describe("POST - /article", () => {
         })
     })
     it("Ajouter un article incorrect. (Avec une quantité < 0 ) - E", (done) => {
-        chai.request(server).post('/article').send({
+        chai.request(server).post('/article').auth(valid_token, { type: 'bearer' }).send({
             user_id: rdm_user(tab_id_users),
             name: "avion",
             description: "ceci est une description",
@@ -91,7 +103,7 @@ describe("POST - /article", () => {
         })
     })
     it("Ajouter un article incorrect. (Avec un champ vide) - E", (done) => {
-        chai.request(server).post('/article').send({
+        chai.request(server).post('/article').auth(valid_token, { type: 'bearer' }).send({
             user_id: rdm_user(tab_id_users),
             name: "",
             description: "ceci est une description",
@@ -102,11 +114,23 @@ describe("POST - /article", () => {
             done()
         })
     })
+    it("Ajouter un article sans etre authentifié. - E", (done) => {
+        chai.request(server).post('/article').send({
+            user_id: rdm_user(tab_id_users),
+            name: "voiture",
+            description: "ceci est une description",
+            price: 12000,
+            quantity: 40
+        }).end((err, res) => {
+            expect(res).to.have.status(401)
+            done()
+        });
+    })
 })
 
 describe("POST - /articles", () => {
     it("Ajouter des articles. - S", (done) => {
-        chai.request(server).post('/articles').send([
+        chai.request(server).post('/articles').auth(valid_token, { type: 'bearer' }).send([
             {
                 user_id: rdm_user(tab_id_users),
                 name: "voiture",
@@ -135,7 +159,7 @@ describe("POST - /articles", () => {
         });
     })
     it("Ajouter des articles incorrecte. - E", (done) => {
-        chai.request(server).post('/articles').send([
+        chai.request(server).post('/articles').auth(valid_token, { type: 'bearer' }).send([
             {
                 user_id: rdm_user(tab_id_users),
                 description: "ceci est une description",
@@ -154,11 +178,39 @@ describe("POST - /articles", () => {
             done()
         });
     })
+    it("Ajouter des articles sans etre authentifié. - E", (done) => {
+        chai.request(server).post('/articles').send([
+            {
+                user_id: rdm_user(tab_id_users),
+                name: "voiture",
+                description: "ceci est une description",
+                price: 12000,
+                quantity: 40
+            },
+            {
+                user_id: rdm_user(tab_id_users),
+                name: "velo",
+                description: "ceci est une description",
+                price: 50,
+                quantity: 75
+            },
+            {
+                user_id: rdm_user(tab_id_users),
+                name: "avion",
+                description: "ceci est une description",
+                price: 1500000,
+                quantity: 5
+            },
+        ]).end((err, res) => {
+            expect(res).to.have.status(401)
+            done()
+        });
+    })
 })
 
 describe("GET - /article/:id", () => {
     it("Chercher un article correct. - S", (done) => {
-        chai.request(server).get('/article/' + articles[0]._id)
+        chai.request(server).get('/article/' + articles[0]._id).auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(200)
             done()
@@ -166,7 +218,7 @@ describe("GET - /article/:id", () => {
     })
 
     it("Chercher un article incorrect (avec un id inexistant). - E", (done) => {
-        chai.request(server).get('/article/665f18739d3e172be5daf092')
+        chai.request(server).get('/article/665f18739d3e172be5daf092').auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(404)
             done()
@@ -174,18 +226,25 @@ describe("GET - /article/:id", () => {
     })
 
     it("Chercher un article incorrect (avec un id invalide). - E", (done) => {
-        chai.request(server).get('/article/123')
+        chai.request(server).get('/article/123').auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(405)
             done()
         })
     })
     
+    it("Chercher un article correct sans etre authentifié. - E", (done) => {
+        chai.request(server).get('/article/' + articles[0]._id)
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
 })
 
 describe("GET - /articles", () => {
     it("Chercher plusieurs articles. - S", (done) => {
-        chai.request(server).get('/articles').query({id: _.map(articles, '_id')})
+        chai.request(server).get('/articles').auth(valid_token, { type: 'bearer' }).query({id: _.map(articles, '_id')})
         .end((err, res) => {
             res.should.have.status(200)
             expect(res.body).to.be.an('array')
@@ -194,7 +253,7 @@ describe("GET - /articles", () => {
     })
 
     it("Chercher plusieurs articles incorrects (avec un id inexistant). - E", (done) => {
-        chai.request(server).get('/articles').query({id: ["66791a552b38d88d8c6e9ee7", "66791a822b38d88d8c6e9eed"]})
+        chai.request(server).get('/articles').auth(valid_token, { type: 'bearer' }).query({id: ["66791a552b38d88d8c6e9ee7", "66791a822b38d88d8c6e9eed"]})
         .end((err, res) => {
             res.should.have.status(404)
             done()
@@ -202,9 +261,17 @@ describe("GET - /articles", () => {
     })
 
     it("Chercher plusieurs articles incorrects (avec un id invalide). - E", (done) => {
-        chai.request(server).get('/articles').query({id: ['123', '456']})
+        chai.request(server).get('/articles').auth(valid_token, { type: 'bearer' }).query({id: ['123', '456']})
         .end((err, res) => {
             res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher plusieurs articles sans etre authentifié. - E", (done) => {
+        chai.request(server).get('/articles').query({id: _.map(articles, '_id')})
+        .end((err, res) => {
+            res.should.have.status(401)
             done()
         })
     })
@@ -212,7 +279,7 @@ describe("GET - /articles", () => {
 
 describe("PUT - /article", () => {
     it("Modifier un article. - S", (done) => {
-        chai.request(server).put('/article/' + articles[0]._id).send({ name: "Tv" })
+        chai.request(server).put('/article/' + articles[0]._id).auth(valid_token, { type: 'bearer' }).send({ name: "Tv" })
         .end((err, res) => {
             res.should.have.status(200)
             done()
@@ -220,7 +287,7 @@ describe("PUT - /article", () => {
     })
 
     it("Modifier un article avec un id invalide. - E", (done) => {
-        chai.request(server).put('/article/123456789').send({name: "pommier", description: "Un arbre"})
+        chai.request(server).put('/article/123456789').auth(valid_token, { type: 'bearer' }).send({name: "pommier", description: "Un arbre"})
         .end((err, res) => {
             res.should.have.status(405)
             done()
@@ -228,7 +295,7 @@ describe("PUT - /article", () => {
     })
 
     it("Modifier un article avec un id inexistant. - E", (done) => {
-        chai.request(server).put('/article/66791a552b38d88d8c6e9ee7').send({name: "pommier", description: "Un arbre"})
+        chai.request(server).put('/article/66791a552b38d88d8c6e9ee7').auth(valid_token, { type: 'bearer' }).send({name: "pommier", description: "Un arbre"})
         .end((err, res) => {
             res.should.have.status(404)
             done()
@@ -236,9 +303,17 @@ describe("PUT - /article", () => {
     })
 
     it("Modifier un article avec un champ requis vide. - E", (done) => {
-        chai.request(server).put('/article/' + articles[0]._id).send({name: "", description: "Un arbre"})
+        chai.request(server).put('/article/' + articles[0]._id).auth(valid_token, { type: 'bearer' }).send({name: "", description: "Un arbre"})
         .end((err, res) => {
             res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier un article sans etre authentifié. - E", (done) => {
+        chai.request(server).put('/article/' + articles[0]._id).send({ name: "Tv" })
+        .end((err, res) => {
+            res.should.have.status(401)
             done()
         })
     })
@@ -246,7 +321,7 @@ describe("PUT - /article", () => {
 
 describe("PUT - /articles", () => {
     it("Modifier plusieurs articles. - S", (done) => {
-        chai.request(server).put('/articles').query({id: _.map(articles, '_id')}).send({ price: 30 })
+        chai.request(server).put('/articles').auth(valid_token, { type: 'bearer' }).query({id: _.map(articles, '_id')}).send({ price: 30 })
         .end((err, res) => {
             res.should.have.status(200)
             done()
@@ -254,7 +329,7 @@ describe("PUT - /articles", () => {
     })
 
     it("Modifier plusieurs articles avec des ids invalide. - E", (done) => {
-        chai.request(server).put('/articles').query({id: ['267428142', '41452828']}).send({name: "Alexandre"})
+        chai.request(server).put('/articles').auth(valid_token, { type: 'bearer' }).query({id: ['267428142', '41452828']}).send({name: "Alexandre"})
         .end((err, res) => {
             res.should.have.status(405)
             done()
@@ -262,7 +337,7 @@ describe("PUT - /articles", () => {
     })
 
     it("Modifier plusieurs articles avec des ids inexistant. - E", (done) => {
-        chai.request(server).put('/articles').query({id: ['66791a552b38d88d8c6e9ee7', '667980886db560087464d3a7']})
+        chai.request(server).put('/articles').auth(valid_token, { type: 'bearer' }).query({id: ['66791a552b38d88d8c6e9ee7', '667980886db560087464d3a7']})
         .send({name: "Lutfu"})
         .end((err, res) => {
             res.should.have.status(404)
@@ -271,9 +346,17 @@ describe("PUT - /articles", () => {
     })
 
     it("Modifier des articles avec un champ requis vide. - E", (done) => {
-        chai.request(server).put('/articles').query({id: _.map(articles, '_id')}).send({ name: ""})
+        chai.request(server).put('/articles').auth(valid_token, { type: 'bearer' }).query({id: _.map(articles, '_id')}).send({ name: ""})
         .end((err, res) => {
             res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier plusieurs articles sans etre authentifié. - E", (done) => {
+        chai.request(server).put('/articles').query({id: _.map(articles, '_id')}).send({ price: 30 })
+        .end((err, res) => {
+            res.should.have.status(401)
             done()
         })
     })
@@ -281,54 +364,76 @@ describe("PUT - /articles", () => {
 
 describe("DELETE - /article", () => {
     it("Supprimer un article. - S", (done) => {
-        chai.request(server).delete('/article/' + articles[0]._id)
+        chai.request(server).delete('/article/' + articles[0]._id).auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(200)
             done()
         })
     })
+
     it("Supprimer un article incorrect (avec un id inexistant). - E", (done) => {
-        chai.request(server).delete('/article/665f18739d3e172be5daf092')
+        chai.request(server).delete('/article/665f18739d3e172be5daf092').auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(404)
             done()
         })
     })
+
     it("Supprimer un article incorrect (avec un id invalide). - E", (done) => {
-        chai.request(server).delete('/article/123')
+        chai.request(server).delete('/article/123').auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Supprimer un article sans etre authentifié. - E", (done) => {
+        chai.request(server).delete('/article/' + articles[0]._id)
+        .end((err, res) => {
+            res.should.have.status(401)
             done()
         })
     })
 })
 
 describe("DELETE - /articles", () => {
-    it("Supprimer plusieurs articles. - S", (done) => {
-        chai.request(server).delete('/articles').query({id: _.map(articles, '_id')})
-        .end((err, res) => {
-            res.should.have.status(200)
-            done()
-        })
-    })
     it("Supprimer plusieurs articles incorrects (avec un id inexistant). - E", (done) => {
-        chai.request(server).delete('/articles/665f18739d3e172be5daf092&665f18739d3e172be5daf093')
+        chai.request(server).delete('/articles/665f18739d3e172be5daf092&665f18739d3e172be5daf093').auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(404)
             done()
         })
     })
+
     it("Supprimer plusieurs articles incorrects (avec un id invalide). - E", (done) => {
-        chai.request(server).delete('/articles').query({id: ['123', '456']})
+        chai.request(server).delete('/articles').query({id: ['123', '456']}).auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(405)
             done()
         })
     })
+
+    it("Supprimer plusieurs articles. - S", (done) => {
+        chai.request(server).delete('/articles').auth(valid_token, { type: 'bearer' }).query({id: _.map(articles, '_id')})
+        .end((err, res) => {
+            res.should.have.status(200)
+            done()
+        })
+    })
+
+    it("Supprimer plusieurs articles sans etre authentifié. - E", (done) => {
+        chai.request(server).delete('/articles').query({id: _.map(articles, '_id')})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
 })
 
-it("Suppression des utilisateurs fictif", (done) => {
-    UserService.deleteManyUsers(tab_id_users, null, function (err, value) {
-        done()
+describe("DELETE - /users", () => {
+    it("Suppression des utilisateurs fictif", (done) => {
+        UserService.deleteManyUsers(tab_id_users, null, function (err, value) {
+            done()
+        })
     })
 })

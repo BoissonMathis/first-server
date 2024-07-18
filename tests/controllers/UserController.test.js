@@ -95,6 +95,20 @@ describe("POST - /login", () => {
             done()
         })
     })
+    it("Authentifier un utilisateur incorrect. (username inexistant) - E", (done) => {
+        chai.request(server).post('/login').send({username: 'zdesfrgtyhj', password: '1234'})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+    it("Authentifier un utilisateur incorrect. (password incorrect) - E", (done) => {
+        chai.request(server).post('/login').send({username: 'dwarfSlayer', password: '7894'})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
 })
 
 describe("GET - /user/:id", () => {
@@ -118,6 +132,14 @@ describe("GET - /user/:id", () => {
         chai.request(server).get('/user/123').auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur sans etre authentifié. - E", (done) => {
+        chai.request(server).get('/user/' + users[0]._id)
+        .end((err, res) => {
+            res.should.have.status(401)
             done()
         })
     })
@@ -172,6 +194,14 @@ describe("GET - /user", () => {
             done()
         })
     })
+
+    it("Chercher un utilisateur par un champ selectionné sans etre authentifié. - E", (done) => {
+        chai.request(server).get('/user').query({fields: ['username'], value: users[0].username})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
 })
 
 describe("GET - /users", () => {
@@ -196,6 +226,14 @@ describe("GET - /users", () => {
         chai.request(server).get('/users').auth(valid_token, { type: 'bearer' }).query({id: ['123', '456']})
         .end((err, res) => {
             res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher plusieurs utilisateurs sans etre authentifié. - E", (done) => {
+        chai.request(server).get('/users').query({id: _.map(users, '_id')})
+        .end((err, res) => {
+            res.should.have.status(401)
             done()
         })
     })
@@ -232,6 +270,13 @@ describe("GET - /users_by_filters", () => {
         chai.request(server).get('/users_by_filters').auth(valid_token, { type: 'bearer' }).query({page: 'une phrase', pageSize: 2})
         .end((err, res) => {
             res.should.have.status(405)
+            done()
+        })
+    })
+    it("Chercher plusieurs utilisateurs sans etre authentifié. - E", (done) => {
+        chai.request(server).get('/users_by_filters').query({page: 1, pageSize: 2})
+        .end((err, res) => {
+            res.should.have.status(401)
             done()
         })
     })
@@ -278,6 +323,13 @@ describe("PUT - /user", () => {
         })
     })
 
+    it("Modifier un utilisateur sans etre authentifié. - E", (done) => {
+        chai.request(server).put('/user/' + users[0]._id).send({ firstName: "Olivier" })
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
 })
 
 describe("PUT - /users", () => {
@@ -317,8 +369,15 @@ describe("PUT - /users", () => {
     it("Modifier des utilisateurs avec un champ unique existant. - E", (done) => {
         chai.request(server).put('/users').auth(valid_token, { type: 'bearer' }).query({id: _.map(users, '_id')}).send({ username: users[1].username})
         .end((err, res) => {
-            //
             res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier plusieurs utilisateurs sans etre authentifié. - E", (done) => {
+        chai.request(server).put('/users').query({id: _.map(users, '_id')}).send({ firstName: "lucas" })
+        .end((err, res) => {
+            res.should.have.status(401)
             done()
         })
     })
@@ -328,7 +387,6 @@ describe("DELETE - /user", () => {
     it("Supprimer un utilisateur. - S", (done) => {
         chai.request(server).delete('/user/' + users[1]._id).auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
-            // console.log(users)
             res.should.have.status(200)
             done()
         })
@@ -336,7 +394,6 @@ describe("DELETE - /user", () => {
     it("Supprimer un utilisateur incorrect (avec un id inexistant). - E", (done) => {
         chai.request(server).delete('/user/665f18739d3e172be5daf092').auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
-            // console.log(res)
             res.should.have.status(404)
             done()
         })
@@ -345,6 +402,14 @@ describe("DELETE - /user", () => {
         chai.request(server).delete('/user/123').auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Supprimer un utilisateur sans etre authentifié. - E", (done) => {
+        chai.request(server).delete('/user/' + users[1]._id)
+        .end((err, res) => {
+            res.should.have.status(401)
             done()
         })
     })
@@ -358,6 +423,7 @@ describe("DELETE - /users", () => {
             done()
         })
     })
+
     it("Supprimer plusieurs utilisateurs incorrects (avec un id invalide). - E", (done) => {
         chai.request(server).delete('/users').auth(valid_token, { type: 'bearer' }).query({id: ['123', '456']})
         .end((err, res) => {
@@ -365,11 +431,20 @@ describe("DELETE - /users", () => {
             done()
         })
     })
+
+    it("Supprimer plusieurs utilisateurs sans etre authentifié. - E", (done) => {
+        chai.request(server).delete('/users').query({id: _.map(users, '_id')})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+
     it("Supprimer plusieurs utilisateurs. - S", (done) => {
         chai.request(server).delete('/users').auth(valid_token, { type: 'bearer' }).query({id: _.map(users, '_id')})
         .end((err, res) => {
             res.should.have.status(200)
             done()
         })
-    })
+    }) 
 })
