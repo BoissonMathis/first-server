@@ -14,7 +14,7 @@ User.createIndexes()
 module.exports.loginUser = async function (username, password, options, callback) {
     module.exports.findOneUser(['username', 'email'], username, null, async (err, value) => {
       if (err)
-        done(err)
+        callback(err)
       else {
         if (bcrypt.compareSync(password, value.password)) {
           var token = TokenUtils.createToken({ _id: value._id }, null)
