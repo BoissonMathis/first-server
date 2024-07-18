@@ -52,7 +52,7 @@ function rdm_user (tab) {
 }
 
 describe("addOneArticle", () => {
-    it("Article correct. - S", () => {
+    it("Article correct. - S", (done) => {
         var article = {
             user_id: rdm_user(tab_id_users),
             name: "test",
@@ -69,14 +69,14 @@ describe("addOneArticle", () => {
             done()
         })
     })
-    it("Article incorrect. (Sans name) - E", () => {
+    it("Article incorrect. (Sans name) - E", (done) => {
         var article_no_valid = {
             user_id: rdm_user(tab_id_users),
             description: "ceci est une description",
             price: 10,
             quantity: 80
         }
-        ArticleService.addOneArticle(article_no_valid, rdm_user(tab_id_users), null, function (err, value) {
+        ArticleService.addOneArticle(article_no_valid,  null, function (err, value) {
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
             expect(err).to.haveOwnProperty('fields')
@@ -85,7 +85,7 @@ describe("addOneArticle", () => {
             done()
         })
     })
-    it("Article incorrect. (Description vide) - E", () => {
+    it("Article incorrect. (Description vide) - E", (done) => {
         var article_no_valid = {
             user_id: rdm_user(tab_id_users),
             name: "une table",
@@ -93,7 +93,7 @@ describe("addOneArticle", () => {
             price: 10,
             quantity: 80
         }
-        ArticleService.addOneArticle(article_no_valid, rdm_user(tab_id_users), null, function (err, value) {
+        ArticleService.addOneArticle(article_no_valid, null, function (err, value) {
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
             expect(err).to.haveOwnProperty('fields')
@@ -102,7 +102,7 @@ describe("addOneArticle", () => {
             done()
         })
     })
-    it("Article incorrect. (Price < 0) - E", () => {
+    it("Article incorrect. (Price < 0) - E", (done) => {
         var article_no_valid = {
             user_id: rdm_user(tab_id_users),
             name: "une table",
@@ -110,7 +110,7 @@ describe("addOneArticle", () => {
             price: -20,
             quantity: 80
         }
-        ArticleService.addOneArticle(article_no_valid, rdm_user(tab_id_users), null, function (err, value) {
+        ArticleService.addOneArticle(article_no_valid, null, function (err, value) {
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
             expect(err).to.haveOwnProperty('fields')
@@ -119,7 +119,7 @@ describe("addOneArticle", () => {
             done()
         })
     })
-    it("Article incorrect. (String dans price) - E", () => {
+    it("Article incorrect. (String dans price) - E", (done) => {
         var article_no_valid = {
             user_id: rdm_user(tab_id_users),
             name: "une table",
@@ -127,7 +127,7 @@ describe("addOneArticle", () => {
             price: "error",
             quantity: 80
         }
-        ArticleService.addOneArticle(article_no_valid, rdm_user(tab_id_users), null, function (err, value) {
+        ArticleService.addOneArticle(article_no_valid, null, function (err, value) {
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
             expect(err).to.haveOwnProperty('fields')
