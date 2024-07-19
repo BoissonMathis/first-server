@@ -5,8 +5,9 @@ const LoggerHttp = require ('../utils/logger').http
 module.exports.addOneArticle = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Création d'un article")
+    let options = {user: req.user}
 
-    ArticleService.addOneArticle(req.body, null, function(err, value) {
+    ArticleService.addOneArticle(req.body, options, function(err, value) {
         if (err && err.type_error == "no found") {
             res.statusCode = 404
             res.send(err)
@@ -30,7 +31,9 @@ module.exports.addOneArticle = function(req, res) {
 module.exports.addManyArticles = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Création de plusieurs articles")
-    ArticleService.addManyArticles(req.body, null, function(err, value) {
+    let options = {user: req.user}
+
+    ArticleService.addManyArticles(req.body, options, function(err, value) {
         if (err) {
             res.statusCode = 405
             res.send(err)
@@ -153,7 +156,9 @@ module.exports.updateOneArticle = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Modification d'un article")
     let update = req.body
-    ArticleService.updateOneArticle(req.params.id, update, null, function(err, value) {
+    let options = {user: req.user}
+
+    ArticleService.updateOneArticle(req.params.id, update, options, function(err, value) {
         //
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
@@ -178,10 +183,12 @@ module.exports.updateManyArticles = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Modification de plusieurs articles")
     var arg = req.query.id
+    let options = {user: req.user}
+
     if (arg && !Array.isArray(arg))
         arg = [arg]
     var updateData = req.body
-    ArticleService.updateManyArticles(arg, updateData, null, function(err, value) {
+    ArticleService.updateManyArticles(arg, updateData, options, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)

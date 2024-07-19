@@ -10,6 +10,7 @@ Article.createIndexes()
 
 module.exports.addOneArticle = async function (article, options, callback) {
     try {
+        article.user_id = options && options.user ? options.user._id : article.user_id
         var new_article = new Article(article);
         var errors = new_article.validateSync();
         if (errors) {
@@ -38,11 +39,11 @@ module.exports.addOneArticle = async function (article, options, callback) {
 };
 
 module.exports.addManyArticles = async function (articles, options, callback) {
-    let opts = options
     var errors = [];
     // Vérifier les erreurs de validation
     for (var i = 0; i < articles.length; i++) {
         var article = articles[i];
+        article.user_id = options && options.user ? options.user._id : article.user_id
         var new_article = new Article(article);
         var error = new_article.validateSync();
         if (error) {
@@ -211,7 +212,7 @@ module.exports.findManyArticles = function(search, limit, page, options, callbac
 }
 
 module.exports.updateOneArticle = function (article_id, update, options, callback) {
-    let opts = options
+    update.user_id = options && options.user ? options.user._id : update.user_id
     update.updated_at = new Date()
 
     if (article_id && mongoose.isValidObjectId(article_id)) {
@@ -259,7 +260,7 @@ module.exports.updateOneArticle = function (article_id, update, options, callbac
 
 
 module.exports.updateManyArticles = function (articles_id, update, options, callback) {
-    let opts = options
+    update.user_id = options && options.user ? options.user._id : update.user_id
 
     if (articles_id && Array.isArray(articles_id) && articles_id.length > 0 && articles_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == articles_id.length) {
         articles_id = articles_id.map((e) => { return new ObjectId(e) })
