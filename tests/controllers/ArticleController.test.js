@@ -58,8 +58,8 @@ describe("POST - /login", () => {
     })
 })
 
-function rdm_user(tab) {
-    let rdm_id = tab[Math.floor(Math.random() * tab.length)]
+function rdm_user (tab) {
+    let rdm_id = tab[Math.floor(Math.random() * (tab.length - 1))]
     return rdm_id
 }
 
@@ -154,7 +154,7 @@ describe("POST - /articles", () => {
             },
         ]).end((err, res) => {
             expect(res).to.have.status(201)
-            articles.push(res.body)
+            articles = [...articles, ...res.body]
             done()
         });
     })

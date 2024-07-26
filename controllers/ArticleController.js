@@ -184,10 +184,10 @@ module.exports.updateManyArticles = function(req, res) {
     req.log.info("Modification de plusieurs articles")
     var arg = req.query.id
     let options = {user: req.user}
-
     if (arg && !Array.isArray(arg))
         arg = [arg]
     var updateData = req.body
+    
     ArticleService.updateManyArticles(arg, updateData, options, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404

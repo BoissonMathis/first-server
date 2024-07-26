@@ -10,6 +10,7 @@ module.exports.loginUser = function(req, res, next) {
             return res.send({msg: "Le nom d'utilisateur ou le mot de passe n'est pas correct", type_error: "no-valid-login"})
         }
         req.logIn(user, async function (err) {
+            console.log(err)
             if(err) {
                 res.statusCode = 500
                 return res.send({msg: "Probleme d'authentification sur le serveur.", type_error: "internal"})

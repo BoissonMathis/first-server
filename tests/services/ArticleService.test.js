@@ -69,9 +69,11 @@ describe("addOneArticle", () => {
             quantity: 120,
         }
         ArticleService.addOneArticle(article, null, function(err, value) {
+            console.log(value)
             expect(value).to.be.a('object');
             expect(value).to.haveOwnProperty('_id')
             expect(value).to.haveOwnProperty('user_id')
+            expect(toString(value['user_id'])).to.be.equal(toString(article.user_id))
             id_article_valid = value._id
             articles.push(value)
             done()
@@ -473,6 +475,7 @@ describe("updateManyArticles", () => {
 describe("deleteOneArticle", () => {
     it("Supprimer un article correct. - S", (done) => {
         ArticleService.deleteOneArticle(id_article_valid, null, function (err, value) { //callback
+            console.log('article a delete:', articles.length)
             expect(value).to.be.a('object')
             expect(value).to.haveOwnProperty('_id')
             expect(value).to.haveOwnProperty('name')

@@ -163,7 +163,7 @@ module.exports.findManyUsersById = function (users_id, options, callback) {
                 }
             }
             catch (e) {
-                
+                console.log(e)
             }
         }).catch((err) => {
             callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
